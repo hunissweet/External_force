@@ -55,10 +55,12 @@ def plot_loss_curves(results_bunch):
         # Figure out how many epochs there were
         epochs = range(len(results['train_loss']))
 
+     
 
         # Plot loss
         plt.subplot(2, 2, 1)
         plt.plot(epochs, loss, label='train_loss_'+str(i))
+        plt.hold(True)
         if i%2 !=0 or i==0:
             plt.title('Train_Loss')
             plt.xlabel('Epochs')
@@ -67,6 +69,7 @@ def plot_loss_curves(results_bunch):
         
         plt.subplot(2, 2, 2)
         plt.plot(epochs, test_loss, label='test_loss_'+str(i))
+        plt.hold(True)
         if i%2 !=0 or i==0:
             plt.title('Test_Loss')
             plt.xlabel('Epochs')
