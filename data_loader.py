@@ -49,7 +49,7 @@ class data_loader:
         print("1st Folder name : ", self.file_directory[0])
         self.contents=os.listdir(os.path.join(self.path,file_list))
         print("Contents in the folder :", self.contents,"\n\n")
-        for i in range(len(self.Param[1])):
+        for i in range(len(self.Param[0])):
             '''if len(self.Param_pd[i].unique())==1:
                 print("**Variable**",self.Param_pd[i].unique(),"\n")
                 V=self.Param_pd[i].unique()
@@ -98,7 +98,7 @@ class data_loader:
                 if len(New_Columns)==len(self.Selected_Param[0]):
                     df.insert(len(Col)+i,New_Columns[i],self.Selected_Param[j][i])
                 else :
-                    print(f'Defined Additional col : {len(New_Columns)}   ||   Input Additional col : {len(self.Selected_Param[0])}  ')
+                    print(f'Manual Input colum not matching Defined Additional col : {len(New_Columns)}   ||   Input Additional col : {len(self.Selected_Param[0])}  ')
             if j ==0:
                 self.total_df= df
             else:

@@ -30,8 +30,31 @@ class IOStatesData(DataStream):
 
     def map_msg(self, msg):
         return [msg.analog_out_states[0].state,
-                msg.analog_out_states[1].state]
+                msg.analog_out_states[1].state
+               ]
+    
+class RecordFlagData(DataStream):
+    def __init__(self, topic_name):
+        DataStream.__init__(self, topic_name)
+        self.msg_type = IOStates
 
+    def map_msg(self, msg):
+        return [msg.digital_out_states[0].state
+               ]
+############# TCP change####################
+'''
+class TcpData(DataStream):
+    def __init__(self, topic_name):
+        DataStream.__init__(self, topic_name)
+        self.msg_type = IOStates
+
+    def map_msg(self, msg):
+        return [msg.transform.translation.x,
+                msg.transform.translation.y,
+                msg.transform.translation.z,
+               ]
+'''
+####################################################
 class ArrayData(DataStream):
     def __init__(self, topic_name, msg_type):
         DataStream.__init__(self, topic_name)
@@ -63,6 +86,9 @@ def Vector_set(path_list):
 
     data_config = {'ext_force':JointStateData('/external_ft_sensor'),
                    'pressure_command':IOStatesData('/io_and_status_controller/io_states'),
+                   'RecordFlag':RecordFlagData('/io_and_status_controller/io_states'),
+                   #'tcp': TcpData('/tcp'),
+                   
                    'finger_sensors':ArrayData('/i2c_sensors', Float32MultiArray)}
     data_handler = RosDataHandler(data_config)
     data_handler.load_bags([Path(path_list)], sync_stream = 'ext_force')
