@@ -65,15 +65,15 @@ def plot_loss_curves(results_bunch):
         # Plot loss
         plt.subplot(1, 2, 1)
         plt.plot(epochs, loss, label='train_loss_'+str(i))
-        if i%2 !=0 or i==0:
+        if i==len(results_bunch):
             plt.title('Train_Loss')
             plt.xlabel('Epochs')
             plt.legend()
-        
+
         
         plt.subplot(1, 2, 2)
         plt.plot(epochs, test_loss, label='test_loss_'+str(i))
-        if i%2 !=0 or i==0:
+        if i==len(results_bunch):
             plt.title('Test_Loss')
             plt.xlabel('Epochs')
             plt.legend()
