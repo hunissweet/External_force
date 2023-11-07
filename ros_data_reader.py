@@ -8,7 +8,7 @@ import os as os
 from sensor_msgs.msg import JointState
 from ur_msgs.msg import IOStates
 from std_msgs.msg import Int16MultiArray, Float64, Float32MultiArray
-
+from geometry_msgs.msg import TransformStamped
 from rosbags.typesys import get_types_from_msg, register_types
 
 # Project imports
@@ -42,18 +42,19 @@ class RecordFlagData(DataStream):
         return [msg.digital_out_states[0].state
                ]
 ############# TCP change####################
-'''
-class TcpData(DataStream):
+
+class TCPData(DataStream):
     def __init__(self, topic_name):
         DataStream.__init__(self, topic_name)
-        self.msg_type = IOStates
+        self.msg_type = TransformStamped
 
     def map_msg(self, msg):
-        return [msg.transform.translation.x,
-                msg.transform.translation.y,
-                msg.transform.translation.z,
-               ]
-'''
+        t = msg.transform
+        pos = [t.translation.x,
+               t.translation.y,
+               t.translation.z]
+        return pos
+
 ####################################################
 class ArrayData(DataStream):
     def __init__(self, topic_name, msg_type):
@@ -87,7 +88,7 @@ def Vector_set(path_list):
     data_config = {'ext_force':JointStateData('/external_ft_sensor'),
                    'pressure_command':IOStatesData('/io_and_status_controller/io_states'),
                    'RecordFlag':RecordFlagData('/io_and_status_controller/io_states'),
-                   #'tcp': TcpData('/tcp'),
+                   'tcp':TCPData("/tcp"),
                    
                    'finger_sensors':ArrayData('/i2c_sensors', Float32MultiArray)}
     data_handler = RosDataHandler(data_config)
