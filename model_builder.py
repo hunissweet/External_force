@@ -1,27 +1,6 @@
 import torch
 from torch import nn 
 
-class LSTMModel1(nn.Module):
-    def __init__(self, input_dim : int, hidden_dim:int, layer_dim:int, output_dim:int, dropout_prob:float):
-        super().__init__()
-        # Defining the number of layers and the nodes in each layer
-        self.hidden_dim = hidden_dim
-        self.layer_dim = layer_dim
-
-        # LSTM layers
-        self.lstm = nn.LSTM(
-            input_dim, hidden_dim, layer_dim, batch_first=True, dropout=dropout_prob
-        )
-
-        # Fully connected layer
-        self.fc = nn.Linear(hidden_dim, output_dim)
-        
-    def forward(self, x):
-        x, _ = self.lstm(x)
-        
-        return x
-
-
 class LSTMModel(nn.Module):
     def __init__(self, input_dim : int, hidden_dim:int, layer_dim:int, output_dim:int, dropout_prob:float):
         super(LSTMModel, self).__init__()
@@ -58,50 +37,3 @@ class LSTMModel(nn.Module):
         out = self.fc(out)
 
         return out
-
-class TinyVGG(nn.Module):
-    '''  
-        Args:
-        input_shape: An integer indicating number of input channels.
-        hidden_units: An integer indicating number of hidden units between layers.
-        output_shape: An integer indicating number of output units.
-    '''
-
-    def __init__(self, input_dim: int, hidden_dim: int, output_shape: int) -> None:
-        super().__init__()
-        self.conv_block_1 = nn.Sequential(
-            nn.Conv2d(in_channels=input_shape, 
-                    out_channels=hidden_units, 
-                    kernel_size=3, 
-                    stride=1, 
-                    padding=0),  
-            nn.ReLU(),
-            nn.Conv2d(in_channels=hidden_units, 
-                    out_channels=hidden_units,
-                    kernel_size=3,
-                    stride=1,
-                    padding=0),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2,
-                        stride=2))
-
-        self.conv_block_2 = nn.Sequential(
-            nn.Conv2d(hidden_units, hidden_units, kernel_size=3, padding=0),
-            nn.ReLU(),
-            nn.Conv2d(hidden_units, hidden_units, kernel_size=3, padding=0),
-            nn.ReLU(),
-            nn.MaxPool2d(2)
-              )
-        self.classifier = nn.Sequential(
-              nn.Flatten(),
-              # Where did this in_features shape come from? 
-              # It's because each layer of our network compresses and changes the shape of our inputs data.
-              nn.Linear(in_features=hidden_units*13*13,
-                        out_features=output_shape)
-              )
-
-    def forward(self, x: torch.Tensor):
-        x = self.conv_block_1(x)
-        x = self.conv_block_2(x)
-        x = self.classifier(x)
-        return x

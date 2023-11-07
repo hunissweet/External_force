@@ -187,15 +187,3 @@ def train(model: torch.nn.Module,
 
         # Return the filled results at the end of the epochs
     return results
-
-
-def predict(model: torch.nn.Module, 
-            predict_data_loader: torch.utils.data.DataLoader):
-    output = torch.tensor([])
-    model.eval()
-    with torch.no_grad():
-        for X, _ in data_loader:
-            y_star = model(X)
-            output = torch.cat((output, y_star), 0)
-    
-    return output
