@@ -88,9 +88,8 @@ def Vector_set(path_list):
     data_config = {'ext_force':JointStateData('/external_ft_sensor'),
                    'pressure_command':IOStatesData('/io_and_status_controller/io_states'),
                    'RecordFlag':RecordFlagData('/io_and_status_controller/io_states'),
-                   'tcp':TCPData("/tcp"),
-                   
-                   'finger_sensors':ArrayData('/i2c_sensors', Float32MultiArray)}
+                   'finger1_sensors':ArrayData('/ae1_values', Float32MultiArray),
+                   'finger2_sensors':ArrayData('/ae2_values', Float32MultiArray)}
     data_handler = RosDataHandler(data_config)
     data_handler.load_bags([Path(path_list)], sync_stream = 'ext_force')
 
