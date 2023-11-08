@@ -85,9 +85,10 @@ def add_UR_msgs():
 def Vector_set(path_list):
     add_UR_msgs()
 
-    data_config = {'ext_force':JointStateData('/external_ft_sensor'),
+    data_config = {'RecordFlag':RecordFlagData('/io_and_status_controller/io_states'),
+                   'ext_force':JointStateData('/external_ft_sensor'),
                    'pressure_command':IOStatesData('/io_and_status_controller/io_states'),
-                   'RecordFlag':RecordFlagData('/io_and_status_controller/io_states'),
+                   'tcp':TCPData("/tcp"),
                    'finger1_sensors':ArrayData('/ae1_values', Float32MultiArray),
                    'finger2_sensors':ArrayData('/ae2_values', Float32MultiArray)}
     data_handler = RosDataHandler(data_config)
