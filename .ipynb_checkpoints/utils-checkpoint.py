@@ -32,7 +32,40 @@ def save_model(model: torch.nn.Module,
     print(f"[INFO] Saving model to: {model_save_path}")
     torch.save(obj=model.state_dict(),
              f=model_save_path)
+
     
+    
+def save_model_1(model: torch.nn.Module,
+               target_dir: str,
+               model_name: str):
+    """Saves a PyTorch model to a target directory.
+
+  Args:
+    model: A target PyTorch model to save.
+    target_dir: A directory for saving the model to.
+    model_name: A filename for the saved model. Should include
+      either ".pth" or ".pt" as the file extension.
+
+  Example usage:
+    save_model(model=model_0,
+               target_dir="models",
+               model_name="05_going_modular_tingvgg_model.pth")
+    """
+  # Create target directory
+    target_dir_path = Path(target_dir)
+    target_dir_path.mkdir(parents=True,
+                        exist_ok=True)
+
+    # Create model save path
+    assert model_name.endswith(".pth") or model_name.endswith(".pt"), "model_name should end with '.pt' or '.pth'"
+    model_save_path = target_dir_path / model_name
+
+    # Save the model state_dict()
+    print(f"[INFO] Saving model to: {model_save_path}")
+    torch.save(model,
+             f=model_save_path)
+        
+
 
 def plot_loss_curves(results_bunch):
 #def plot_loss_curves(results_bunch: dict[str, list[float]]):
@@ -61,24 +94,25 @@ def plot_loss_curves(results_bunch):
         epochs = range(len(results['train_loss']))
 
      
-
+        
         # Plot loss
         plt.subplot(1, 2, 1)
-        plt.plot(epochs, loss, label='train_loss_'+str(i))
-        if i==len(results_bunch):
+        plt.plot(epochs, loss, label='con '+str(i))
+        if i==len(results_bunch)-1:
             plt.title('Train_Loss')
             plt.xlabel('Epochs')
             plt.legend()
 
         
         plt.subplot(1, 2, 2)
-        plt.plot(epochs, test_loss, label='test_loss_'+str(i))
-        if i==len(results_bunch):
+        plt.plot(epochs, test_loss, label='con '+str(i))
+        if i==len(results_bunch)-1:
             plt.title('Test_Loss')
             plt.xlabel('Epochs')
             plt.legend()
 
-    plt.show()
+  
+
 
 class Data:
     def __init__(self, X, y,sequence_length=1):
@@ -103,15 +137,15 @@ class Data:
 
 
     
-def plot_prediction(Pred_Values,True_Values):
+def plot_prediction(Pred_Values,True_Values,Lim_value):
 #def plot_loss_curves(results_bunch: dict[str, list[float]]):
     """Plots Results
 
     Args: True value, Prediction results 
         
     """
-    xlim =4
-    ylim =4
+    xlim =Lim_value
+    ylim =Lim_value
 
     plt.figure(figsize=(12,6))
     plt.subplot(2,3,1)
