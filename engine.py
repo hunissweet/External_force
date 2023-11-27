@@ -171,13 +171,14 @@ def train(model: torch.nn.Module,
           device=device)
 
       # Print out what's happening
-        print(
-          f"Epoch: {epoch+1} | "
-          f"train_loss: {train_loss:.4f} | "
-          
-          f"test_loss: {test_loss:.4f} | "
+        if epoch%5==0:
+            print(
+              f"Epoch: {epoch+1} | "
+              f"train_loss: {train_loss:.4f} | "
 
-        )
+              f"test_loss: {test_loss:.4f} | "
+
+            )
 
         # Update results dictionary
         results["train_loss"].append(train_loss)

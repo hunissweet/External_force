@@ -249,15 +249,17 @@ def plot_prediction(Pred_Values,True_Values,Lim_value):
 
     
 def predict(model: torch.nn.Module, 
-            predict_data_loader: torch.utils.data.DataLoader):
-    output = torch.tensor([])
+            predict_data_loader: torch.utils.data.DataLoader,
+            device):
+    output = torch.tensor([]).to(device)
+    model.to(device)
     model.eval()
     with torch.no_grad():
         for X, _ in predict_data_loader:
-            y_star = model(X)
+            y_star = model(X.to(device))
             output = torch.cat((output, y_star), 0)
-    
     return output
+
 def extraction(data,order):
     value=[]
     for i in range(len(data)):
