@@ -2,6 +2,7 @@
 import torch
 from pathlib import Path
 import matplotlib.pyplot as plt
+import numpy as np
 
 def save_model(model: torch.nn.Module,
                target_dir: str,
@@ -110,6 +111,9 @@ def plot_loss_curves(results_bunch):
             plt.title('Test_Loss')
             plt.xlabel('Epochs')
             plt.legend()
+    
+    plt.show()
+    
 
   
 
@@ -146,31 +150,69 @@ def plot_prediction(Pred_Values,True_Values,Lim_value):
     """
     xlim =Lim_value
     ylim =Lim_value
+    
+    
 
     plt.figure(figsize=(12,6))
-    plt.subplot(2,3,1)
-    plt.plot(extraction(Pred_Values,0),label='Predict',color='blue',linestyle ="--")
-    plt.plot(extraction(True_Values,0),label='True',color='blue')
-    plt.ylim((-ylim, ylim))
-    plt.legend(fontsize="12")
+    fig, host = plt.subplots(2,3,1)
+    ax0 = host.twinx()
     
+    host.set_ylim(-7, 8)
+    ax0.set_ylim(-0, 10)
+    
+    host.set_ylabel("Force[N]")
+    ax0.set_ylabel("RMSE[N]")
+
+    host.plot(utils.extraction(Pred_Values,0),label='Predict',color='red',linestyle ="--")
+    host.plot(utils.extraction(True_Values,0),label='True',color='black')
+    
+    A0=np.linspace(0,len(np.array(utils.extraction(True_Values,0))),len(np.array(utils.extraction(True_Values,0))))
+    
+    ax0.fill_between(A0,0, np.absolute(np.array(utils.extraction(True_Values,0)) - np.array(utils.extraction(Pred_Values,0))),  alpha=.3)
+    plt.legend(fontsize="12")
     plt.title('X')
+    
+    
+    
+    
+    fig, host = plt.subplots(2,3,2)
+    ax1 = host.twinx()
+    
+    host.set_ylim(-7, 8)
+    ax1.set_ylim(-0, 10)
+    
+    host.set_ylabel("Force[N]")
+    ax1.set_ylabel("RMSE[N]")
 
-    plt.subplot(2,3,2)
-    plt.plot(extraction(Pred_Values,1),label='Predict',color='orange',linestyle ="--")
-    plt.plot(extraction(True_Values,1),label='True',color='orange')
+    host.plot(utils.extraction(Pred_Values,1),label='Predict',color='blue',linestyle ="--")
+    host.plot(utils.extraction(True_Values,1),label='True',color='black')
+    
+    A1=np.linspace(0,len(np.array(utils.extraction(True_Values,1))),len(np.array(utils.extraction(True_Values,1))))
+    
+    ax1.fill_between(A1,0, np.absolute(np.array(utils.extraction(True_Values,1)) - np.array(utils.extraction(Pred_Values,1))),  alpha=.3)
     plt.legend(fontsize="12")
-    plt.ylim((-ylim, ylim))
     plt.title('Y')
+    
+    
+    
+    
+    fig, host = plt.subplots(2,3,3)
+    ax2 = host.twinx()
+    
+    host.set_ylim(-7, 8)
+    ax2.set_ylim(-0, 10)
+    
+    host.set_ylabel("Force[N]")
+    ax2.set_ylabel("RMSE[N]")
 
-
-    plt.subplot(2,3,3)
-    plt.plot(extraction(Pred_Values,1),label='Predict',color='green',linestyle ="--")
-    plt.plot(extraction(True_Values,1),label='True',color='green')
+    host.plot(utils.extraction(Pred_Values,2),label='Predict',color='orange',linestyle ="--")
+    host.plot(utils.extraction(True_Values,2),label='True',color='black')
+    
+    A2=np.linspace(0,len(np.array(utils.extraction(True_Values,2))),len(np.array(utils.extraction(True_Values,2))))
+    
+    ax2.fill_between(A2,0, np.absolute(np.array(utils.extraction(True_Values,2)) - np.array(utils.extraction(Pred_Values,2))),  alpha=.3)
     plt.legend(fontsize="12")
-    plt.ylim((-ylim, ylim))
-    plt.title('Z')
-
+    plt.title('Y')
 
     # For 
 
@@ -228,6 +270,100 @@ def predict_data_feature(feature,dataset,Model_address):
     dataset=dataset
     Model_path_name=Model_address
     
+    Y=np.array(dataset.filter(items=For_col))
+    X=np.array(dataset.filter(items=Compare_input_feature)) ## important part
+
+
+    X_scaler = sklearn.preprocessing.MinMaxScaler()
+    Y_scaler = sklearn.preprocessing.MinMaxScaler()
+
+    X=torch.FloatTensor(X_scaler.fit_transform(X))
+    Y=torch.FloatTensor(Y_scaler.fit_transform(Y))
+
+
+
+    X_train, X_test, Y_train, Y_test = train_test_split(X, 
+                                                        Y, 
+                                                        test_size=0.3 # 20% test, 80% train
+                                                        #,shuffle=False#,random_state=42
+                                                       ) # make the random split reproducible
+    train_dataset=DataLoader(utils.Data(X_train,Y_train),batch_size=BATCH_SIZE)
+    test_dataset=DataLoader(utils.Data(X_test,Y_test),batch_size=BATCH_SIZE)
+    Input_dim=len(X_train[0])
+    Output_dim=len(Y_train[0])
+
+    ## Build
+    model = model_builder.LSTMModel(
+    input_dim = Input_dim,
+    hidden_dim=HIDDEN_UNITS,
+    layer_dim=2,
+    output_dim=Output_dim,
+    dropout_prob=0.7)
+
+
+    model.load_state_dict(torch.load(Model_path_name))
+    Pred_Values_right = Y_scaler.inverse_transform(utils.predict(model,DataLoader(utils.Data(X,Y),batch_size=BATCH_SIZE)))
+
+    return Pred_Values_right
+
+
+def plot_loss_curves(results_bunch):
+#def plot_loss_curves(results_bunch: dict[str, list[float]]):
+    """Plots training curves of a results dictionary.
+
+    Args:
+        results (dict): dictionary containing list of values, e.g.
+            {"train_loss": [...],
+             "train_acc": [...],
+             "test_loss": [...],
+             "test_acc": [...]}
+    """
+   # Setup a plot 
+    plt.figure(figsize=(10, 5))
+    for i in range(len(results_bunch)):
+        results=results_bunch[i]
+                   
+        # Get the loss values of the results dictionary (training and test)
+        loss = results['train_loss']
+        test_loss = results['test_loss']
+
+        # Get the accuracy values of the results dictionary (training and test)
+
+
+        # Figure out how many epochs there were
+        epochs = range(len(results['train_loss']))
+
+     
+        
+        # Plot loss
+        plt.subplot(1, 2, 1)
+        plt.plot(epochs, loss, label='con '+str(i))
+        if i==len(results_bunch)-1:
+            plt.title('Train_Loss')
+            plt.xlabel('Epochs')
+            plt.legend()
+
+        
+        plt.subplot(1, 2, 2)
+        plt.plot(epochs, test_loss, label='con '+str(i))
+        if i==len(results_bunch)-1:
+            plt.title('Test_Loss')
+            plt.xlabel('Epochs')
+            plt.legend()
+
+  
+
+
+
+
+def rmse(predictions, targets):
+    return np.sqrt(((predictions - targets) ** 2).mean())
+
+def predict_data_feature(feature,dataset,Model_address):
+    Compare_input_feature=feature
+    dataset=dataset
+    Model_path_name=Model_address
+
     Y=np.array(dataset.filter(items=For_col))
     X=np.array(dataset.filter(items=Compare_input_feature)) ## important part
 
