@@ -55,7 +55,11 @@ class TCPData(DataStream):
                t.translation.z]
         return pos
 
+
+
+
 ####################################################
+
 class ArrayData(DataStream):
     def __init__(self, topic_name, msg_type):
         DataStream.__init__(self, topic_name)
@@ -99,3 +103,21 @@ def Vector_set(path_list):
 
     vectorset = data_handler.vectorset
     return vectorset
+def Est_set(path_list):
+    add_UR_msgs()
+
+    data_config = {'RecordFlag':RecordFlagData('/io_and_status_controller/io_states'),
+                   'ext_force':JointStateData('/external_ft_sensor'),
+                   'pressure_command':IOStatesData('/io_and_status_controller/io_states'),
+                   'tcp':TCPData("/tcp"),
+                   'finger1_sensors':ArrayData('/ae1_values', Float32MultiArray),
+                   'finger2_sensors':ArrayData('/ae2_values', Float32MultiArray),
+                   'est_force':ArrayData('/estimated_force', Float32MultiArray)}
+    data_handler = RosDataHandler(data_config)
+    data_handler.load_bags([Path(path_list)], sync_stream = 'ext_force')
+
+    dataset = data_handler.dataset.items()
+    
+
+    est = data_handler.vectorset
+    return est
