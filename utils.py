@@ -139,8 +139,129 @@ class Data:
     
     
 
+def plot_prediction(Pred_Values,True_Values,Lim_value, nbins=15,save_flag=False, save_name=None):
+#def plot_loss_curves(results_bunch: dict[str, list[float]]):
+    """Plots Results
+
+    Args: True value, Prediction results ,nbins and save flag and save name
+        
+    """
+    xlim =Lim_value
+    ylim =Lim_value
+    
+    
+    fig,host=plt.subplots(nrows=2, ncols=3,figsize=(15,8))
+    ax0 = host[0][0].twinx()
+    
+    host[0][0].set_ylim(-7, 8)
+    ax0.set_ylim(-0, 10)
+    
+    host[0][0].set_ylabel("Force[N]")
+    ax0.set_ylabel("RMSE[N]")
 
     
+    host[0][0].plot(utils.extraction(True_Values,0),label='True',color='black')
+    host[0][0].plot(utils.extraction(Pred_Values,0),label='Predict',color='red',linestyle ="--")
+    
+    A0=np.linspace(0,len(np.array(utils.extraction(True_Values,0))),len(np.array(utils.extraction(True_Values,0))))
+    
+    ax0.fill_between(A0,0, np.absolute(np.array(utils.extraction(True_Values,0)) - np.array(utils.extraction(Pred_Values,0))),  label='RMSE',alpha=.3)
+    
+    # ask matplotlib for the plotted objects and their labels
+    lines, labels = host[0][0].get_legend_handles_labels()
+    lines2, labels2 = ax0.get_legend_handles_labels()
+    ax0.legend(lines + lines2, labels + labels2, loc=0)
+    plt.title('X')
+    
+    
+    ax0 = host[0][1].twinx()
+    
+    host[0][1].set_ylim(-7, 8)
+    ax0.set_ylim(-0, 10)
+    
+    host[0][1].set_ylabel("Force[N]")
+    ax0.set_ylabel("RMSE[N]")
+
+    
+    host[0][1].plot(utils.extraction(True_Values,1),label='True',color='black')
+    host[0][1].plot(utils.extraction(Pred_Values,1),label='Predict',color='blue',linestyle ="--")
+    
+    A0=np.linspace(0,len(np.array(utils.extraction(True_Values,0))),len(np.array(utils.extraction(True_Values,0))))
+    
+    ax0.fill_between(A0,0, np.absolute(np.array(utils.extraction(True_Values,1)) - np.array(utils.extraction(Pred_Values,1))),  label='RMSE',alpha=.3)
+    
+    # ask matplotlib for the plotted objects and their labels
+    lines, labels = host[0][1].get_legend_handles_labels()
+    lines2, labels2 = ax0.get_legend_handles_labels()
+    ax0.legend(lines + lines2, labels + labels2, loc=0)
+    plt.title('Y')
+    
+    ax0 = host[0][2].twinx()
+    
+    host[0][2].set_ylim(-7, 8)
+    ax0.set_ylim(-0, 10)
+    
+    host[0][2].set_ylabel("Force[N]")
+    ax0.set_ylabel("RMSE[N]")
+
+    
+    host[0][2].plot(utils.extraction(True_Values,2),label='True',color='black')
+    host[0][2].plot(utils.extraction(Pred_Values,2),label='Predict',color='orange',linestyle ="--")
+    
+    A0=np.linspace(0,len(np.array(utils.extraction(True_Values,2))),len(np.array(utils.extraction(True_Values,2))))
+    
+    ax0.fill_between(A0,0, np.absolute(np.array(utils.extraction(True_Values,2)) - np.array(utils.extraction(Pred_Values,2))),  label='RMSE',alpha=.3)
+    
+    # ask matplotlib for the plotted objects and their labels
+    lines, labels = host[0][2].get_legend_handles_labels()
+    lines2, labels2 = ax0.get_legend_handles_labels()
+    ax0.legend(lines + lines2, labels + labels2, loc=0)
+    plt.title('Z')
+   
+
+    
+    #plt.tight_layout(pad=3)
+    
+
+    
+    #plt.show()
+    # For 
+
+
+    #plt.figure(figsize=(12,3))
+    
+    y = utils.extraction(Pred_Values,0)
+    x = utils.extraction(True_Values,0)
+    host[1][0].hist2d(x, y, bins=(nbins, nbins), cmap=plt.cm.jet, range=[[-xlim, xlim], [-ylim, ylim]])
+    host[1][0].set_xlabel('Ground Truth Force Magnitude (N)')
+    host[1][0].set_ylabel('Predicted Force Magnitude (N)')
+    plt.title('X')
+
+    
+    y = utils.extraction(Pred_Values,1)
+    x = utils.extraction(True_Values,1)
+    host[1][1].hist2d(x, y, bins=(nbins, nbins), cmap=plt.cm.jet, range=[[-xlim, xlim], [-ylim, ylim]])
+    host[1][1].set_xlabel('Ground Truth Force Magnitude (N)')
+    host[1][1].set_ylabel('Predicted Force Magnitude (N)')
+    plt.title('Y')
+
+
+    
+    y = utils.extraction(Pred_Values,2)
+    x = utils.extraction(True_Values,2)
+    host[1][2].hist2d(x, y, bins=(nbins, nbins), cmap=plt.cm.jet,range=[[-xlim, xlim], [-ylim, ylim]])
+    host[1][2].set_xlabel('Ground Truth Force Magnitude (N)')
+    host[1][2].set_ylabel('Predicted Force Magnitude (N)')
+    plt.title('Z')
+
+   
+    fig.suptitle(save_name)
+    plt.tight_layout(pad=1)
+    plt.show()
+    if save_flag==True:
+        fig.savefig(save_name)
+    
+'''
 def plot_prediction(Pred_Values,True_Values,Lim_value):
 #def plot_loss_curves(results_bunch: dict[str, list[float]]):
     """Plots Results
@@ -246,6 +367,7 @@ def plot_prediction(Pred_Values,True_Values,Lim_value):
     plt.tight_layout(pad=2)
 
     plt.show()
+'''
 
     
 def predict(model: torch.nn.Module, 

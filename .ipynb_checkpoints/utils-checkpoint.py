@@ -2,7 +2,28 @@
 import torch
 from pathlib import Path
 import matplotlib.pyplot as plt
+import numpy as np
+def rawdataplot(Total_dataset):
+    TEMP_Total_dataset=Total_dataset
+    fig, axes = plt.subplots(nrows=4, ncols=1)
+    TEMP_Total_dataset[Flag_col].replace({True: 1, False: 0}).plot(ax=axes[0],grid=True,title='Flag')
 
+    TEMP_Total_dataset[For_col].plot(ax=axes[1],grid=True,title='F/T sensor(True value)')
+    TEMP_Total_dataset[Input_P_col].plot(ax=axes[2],grid=True,title='Input pressure')
+    TEMP_Total_dataset[TCP_col].plot(ax=axes[3],grid=True,title='TCP')
+    plt.tight_layout()
+
+
+    fig, axes = plt.subplots(nrows=3, ncols=1)
+    TEMP_Total_dataset[right_finger_pressure1].plot(ax=axes[0],legend=None,grid=True,title='Pressure Half 1')
+    TEMP_Total_dataset[right_finger_pressure2].plot(ax=axes[1],legend=None,grid=True,title='Pressure Half 2')
+    TEMP_Total_dataset[right_finger_strain].plot(ax=axes[2],grid=True,legend=None,title='Strain sensor')
+    plt.tight_layout()
+    fig, axes = plt.subplots(nrows=3, ncols=1)
+    TEMP_Total_dataset[left_finger_pressure1].plot(ax=axes[0],legend=None,grid=True,title='Pressure Half 1')
+    TEMP_Total_dataset[left_finger_pressure2].plot(ax=axes[1],legend=None,grid=True,title='Pressure Half 2')
+    TEMP_Total_dataset[left_finger_strain].plot(ax=axes[2],grid=True,legend=None,title='Strain sensor')
+    plt.tight_layout()
 def save_model(model: torch.nn.Module,
                target_dir: str,
                model_name: str):
@@ -110,6 +131,9 @@ def plot_loss_curves(results_bunch):
             plt.title('Test_Loss')
             plt.xlabel('Epochs')
             plt.legend()
+    
+    plt.show()
+    
 
   
 
@@ -135,8 +159,129 @@ class Data:
     
     
 
+def plot_prediction(Pred_Values,True_Values,Lim_value, nbins=15,save_flag=False, save_name=None):
+#def plot_loss_curves(results_bunch: dict[str, list[float]]):
+    """Plots Results
+
+    Args: True value, Prediction results ,nbins and save flag and save name
+        
+    """
+    xlim =Lim_value
+    ylim =Lim_value
+    
+    
+    fig,host=plt.subplots(nrows=2, ncols=3,figsize=(15,8))
+    ax0 = host[0][0].twinx()
+    
+    host[0][0].set_ylim(-7, 8)
+    ax0.set_ylim(-0, 10)
+    
+    host[0][0].set_ylabel("Force[N]")
+    ax0.set_ylabel("RMSE[N]")
 
     
+    host[0][0].plot(utils.extraction(True_Values,0),label='True',color='black')
+    host[0][0].plot(utils.extraction(Pred_Values,0),label='Predict',color='red',linestyle ="--")
+    
+    A0=np.linspace(0,len(np.array(utils.extraction(True_Values,0))),len(np.array(utils.extraction(True_Values,0))))
+    
+    ax0.fill_between(A0,0, np.absolute(np.array(utils.extraction(True_Values,0)) - np.array(utils.extraction(Pred_Values,0))),  label='RMSE',alpha=.3)
+    
+    # ask matplotlib for the plotted objects and their labels
+    lines, labels = host[0][0].get_legend_handles_labels()
+    lines2, labels2 = ax0.get_legend_handles_labels()
+    ax0.legend(lines + lines2, labels + labels2, loc=0)
+    plt.title('X')
+    
+    
+    ax0 = host[0][1].twinx()
+    
+    host[0][1].set_ylim(-7, 8)
+    ax0.set_ylim(-0, 10)
+    
+    host[0][1].set_ylabel("Force[N]")
+    ax0.set_ylabel("RMSE[N]")
+
+    
+    host[0][1].plot(utils.extraction(True_Values,1),label='True',color='black')
+    host[0][1].plot(utils.extraction(Pred_Values,1),label='Predict',color='blue',linestyle ="--")
+    
+    A0=np.linspace(0,len(np.array(utils.extraction(True_Values,0))),len(np.array(utils.extraction(True_Values,0))))
+    
+    ax0.fill_between(A0,0, np.absolute(np.array(utils.extraction(True_Values,1)) - np.array(utils.extraction(Pred_Values,1))),  label='RMSE',alpha=.3)
+    
+    # ask matplotlib for the plotted objects and their labels
+    lines, labels = host[0][1].get_legend_handles_labels()
+    lines2, labels2 = ax0.get_legend_handles_labels()
+    ax0.legend(lines + lines2, labels + labels2, loc=0)
+    plt.title('Y')
+    
+    ax0 = host[0][2].twinx()
+    
+    host[0][2].set_ylim(-7, 8)
+    ax0.set_ylim(-0, 10)
+    
+    host[0][2].set_ylabel("Force[N]")
+    ax0.set_ylabel("RMSE[N]")
+
+    
+    host[0][2].plot(utils.extraction(True_Values,2),label='True',color='black')
+    host[0][2].plot(utils.extraction(Pred_Values,2),label='Predict',color='orange',linestyle ="--")
+    
+    A0=np.linspace(0,len(np.array(utils.extraction(True_Values,2))),len(np.array(utils.extraction(True_Values,2))))
+    
+    ax0.fill_between(A0,0, np.absolute(np.array(utils.extraction(True_Values,2)) - np.array(utils.extraction(Pred_Values,2))),  label='RMSE',alpha=.3)
+    
+    # ask matplotlib for the plotted objects and their labels
+    lines, labels = host[0][2].get_legend_handles_labels()
+    lines2, labels2 = ax0.get_legend_handles_labels()
+    ax0.legend(lines + lines2, labels + labels2, loc=0)
+    plt.title('Z')
+   
+
+    
+    #plt.tight_layout(pad=3)
+    
+
+    
+    #plt.show()
+    # For 
+
+
+    #plt.figure(figsize=(12,3))
+    
+    y = utils.extraction(Pred_Values,0)
+    x = utils.extraction(True_Values,0)
+    host[1][0].hist2d(x, y, bins=(nbins, nbins), cmap=plt.cm.jet, range=[[-xlim, xlim], [-ylim, ylim]])
+    host[1][0].set_xlabel('Ground Truth Force Magnitude (N)')
+    host[1][0].set_ylabel('Predicted Force Magnitude (N)')
+    plt.title('X')
+
+    
+    y = utils.extraction(Pred_Values,1)
+    x = utils.extraction(True_Values,1)
+    host[1][1].hist2d(x, y, bins=(nbins, nbins), cmap=plt.cm.jet, range=[[-xlim, xlim], [-ylim, ylim]])
+    host[1][1].set_xlabel('Ground Truth Force Magnitude (N)')
+    host[1][1].set_ylabel('Predicted Force Magnitude (N)')
+    plt.title('Y')
+
+
+    
+    y = utils.extraction(Pred_Values,2)
+    x = utils.extraction(True_Values,2)
+    host[1][2].hist2d(x, y, bins=(nbins, nbins), cmap=plt.cm.jet,range=[[-xlim, xlim], [-ylim, ylim]])
+    host[1][2].set_xlabel('Ground Truth Force Magnitude (N)')
+    host[1][2].set_ylabel('Predicted Force Magnitude (N)')
+    plt.title('Z')
+
+   
+    fig.suptitle(save_name)
+    plt.tight_layout(pad=1)
+    plt.show()
+    if save_flag==True:
+        fig.savefig(save_name)
+    
+'''
 def plot_prediction(Pred_Values,True_Values,Lim_value):
 #def plot_loss_curves(results_bunch: dict[str, list[float]]):
     """Plots Results
@@ -242,18 +387,21 @@ def plot_prediction(Pred_Values,True_Values,Lim_value):
     plt.tight_layout(pad=2)
 
     plt.show()
+'''
 
     
 def predict(model: torch.nn.Module, 
-            predict_data_loader: torch.utils.data.DataLoader):
-    output = torch.tensor([])
+            predict_data_loader: torch.utils.data.DataLoader,
+            device):
+    output = torch.tensor([]).to(device)
+    model.to(device)
     model.eval()
     with torch.no_grad():
         for X, _ in predict_data_loader:
-            y_star = model(X)
+            y_star = model(X.to(device))
             output = torch.cat((output, y_star), 0)
-    
     return output
+
 def extraction(data,order):
     value=[]
     for i in range(len(data)):
@@ -354,3 +502,44 @@ def plot_loss_curves(results_bunch):
 
 def rmse(predictions, targets):
     return np.sqrt(((predictions - targets) ** 2).mean())
+
+def predict_data_feature(feature,dataset,Model_address):
+    Compare_input_feature=feature
+    dataset=dataset
+    Model_path_name=Model_address
+
+    Y=np.array(dataset.filter(items=For_col))
+    X=np.array(dataset.filter(items=Compare_input_feature)) ## important part
+
+
+    X_scaler = sklearn.preprocessing.MinMaxScaler()
+    Y_scaler = sklearn.preprocessing.MinMaxScaler()
+
+    X=torch.FloatTensor(X_scaler.fit_transform(X))
+    Y=torch.FloatTensor(Y_scaler.fit_transform(Y))
+
+
+
+    X_train, X_test, Y_train, Y_test = train_test_split(X, 
+                                                        Y, 
+                                                        test_size=0.3 # 20% test, 80% train
+                                                        #,shuffle=False#,random_state=42
+                                                       ) # make the random split reproducible
+    train_dataset=DataLoader(utils.Data(X_train,Y_train),batch_size=BATCH_SIZE)
+    test_dataset=DataLoader(utils.Data(X_test,Y_test),batch_size=BATCH_SIZE)
+    Input_dim=len(X_train[0])
+    Output_dim=len(Y_train[0])
+
+    ## Build
+    model = model_builder.LSTMModel(
+    input_dim = Input_dim,
+    hidden_dim=HIDDEN_UNITS,
+    layer_dim=2,
+    output_dim=Output_dim,
+    dropout_prob=0.7)
+
+
+    model.load_state_dict(torch.load(Model_path_name))
+    Pred_Values_right = Y_scaler.inverse_transform(utils.predict(model,DataLoader(utils.Data(X,Y),batch_size=BATCH_SIZE)))
+
+    return Pred_Values_right
